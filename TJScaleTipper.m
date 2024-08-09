@@ -11,6 +11,8 @@ const NSTimeInterval kTJEndOfElectionDayUnixTimestamp = 1730880000;
 const NSTimeInterval kTJOneWeekBeforeElectionDayUnixTimestamp = 1730185200;
 const NSTimeInterval kTJOneMonthBeforeElectionDayUnixTimestamp = 1728111600;
 
+NSString *const kTJVoterRegistrationURLString = @"https://vote.gov";
+
 __attribute__((objc_direct_members))
 @implementation TJScaleTipper
 

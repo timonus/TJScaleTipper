@@ -6,7 +6,7 @@ This is a small bit of code you can use to determine whether folks are good cand
 - `kTJOneMonthBeforeElectionDayUnixTimestamp`, a date before which I’m recommending people to register to vote.
 - `kTJOneWeekBeforeElectionDayUnixTimestamp`, a date after which I’m reminding people to vote.
 - `kTJEndOfElectionDayUnixTimestamp`, Election Day itself.
-
+- `kTJVoterRegistrationURLString`, the recommended URL people use to check their voter registration status.
 
 
 *Be sure to include the following entries in your app’s `LSApplicationQueriesSchemes`:

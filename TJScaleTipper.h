@@ -18,6 +18,9 @@ extern const NSTimeInterval kTJOneWeekBeforeElectionDayUnixTimestamp;
 /// Recommended as a date before which to remind people to register to vote
 extern const NSTimeInterval kTJOneMonthBeforeElectionDayUnixTimestamp;
 
+/// Recommended URL to direct people to encourage voting.
+extern NSString *const kTJVoterRegistrationURLString;
+
 @interface TJScaleTipper : NSObject
 
 /// Returns @c YES if the current user is a good candidate to encourage voting
