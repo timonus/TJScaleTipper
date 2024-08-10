@@ -6,6 +6,7 @@
 //
 
 #import "TJScaleTipper.h"
+#import <UIKit/UIKit.h>
 
 const NSTimeInterval kTJEndOfElectionDayUnixTimestamp = 1730880000;
 const NSTimeInterval kTJOneWeekBeforeElectionDayUnixTimestamp = 1730185200;
