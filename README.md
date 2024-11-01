@@ -22,3 +22,4 @@ This is a small bit of code you can use to determine whether folks are good cand
 - `conservativenews`
 - `talkradio`
 - `foxnews`
+- `breitbartapp`

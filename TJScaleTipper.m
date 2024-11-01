@@ -44,7 +44,8 @@ __attribute__((objc_direct_members))
         @"second1st",
         @"conservativenews",
         @"talkradio",
-        @"foxnews"
+        @"foxnews",
+        @"breitbartapp",
     ]) {
         if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@://", scheme]]]) {
             return NO;
