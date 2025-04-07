@@ -9,22 +9,31 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// @c isGoodCandidateToEncourageVoting will always return @c NO after this time
-extern const NSTimeInterval kTJEndOfElectionDayUnixTimestamp;
-
-/// Recommended as a date after which to remind people to vote
-extern const NSTimeInterval kTJOneWeekBeforeElectionDayUnixTimestamp;
-
-/// Recommended as a date before which to remind people to register to vote
-extern const NSTimeInterval kTJOneMonthBeforeElectionDayUnixTimestamp;
-
 /// Recommended URL to direct people to encourage voting.
 extern NSString *const kTJVoterRegistrationURLString;
 
 @interface TJScaleTipper : NSObject
 
++ (instancetype)shared;
+
+
+/// @c isGoodCandidateToEncourageVoting will always return @c NO after this time
+@property (nonatomic, readonly) NSDate *endOfElectionDay;
+
+/// Recommended as a date after which to remind people to vote
+@property (nonatomic, readonly) NSDate *oneWeekBeforeElectionDay;
+
+/// Recommended as a date before which to remind people to register to vote
+@property (nonatomic, readonly) NSDate *oneMonthBeforeElectionDay;
+
+/// Recommended as a date after which to remind people to register to vote
+@property (nonatomic, readonly) NSDate *threeMonthsBeforeElectionDay;
+
 /// Returns @c YES if the current user is a good candidate to encourage voting
-+ (BOOL)isGoodCandidateToEncourageVoting;
+@property (nonatomic, readonly) BOOL isGoodCandidateToEncourageVoting;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
