@@ -8,24 +8,98 @@
 #import "TJScaleTipper.h"
 #import <UIKit/UIKit.h>
 
-const NSTimeInterval kTJEndOfElectionDayUnixTimestamp = 1730880000;
-const NSTimeInterval kTJOneWeekBeforeElectionDayUnixTimestamp = 1730185200;
-const NSTimeInterval kTJOneMonthBeforeElectionDayUnixTimestamp = 1728111600;
-
 NSString *const kTJVoterRegistrationURLString = @"https://vote.gov";
 
-__attribute__((objc_direct_members))
-@implementation TJScaleTipper
+@interface TJScaleTipper ()
 
-+ (BOOL)isGoodCandidateToEncourageVoting
+@property (nonatomic, readwrite) NSDate *endOfElectionDay;
+@property (nonatomic, readwrite) NSDate *oneWeekBeforeElectionDay;
+@property (nonatomic, readwrite) NSDate *oneMonthBeforeElectionDay;
+@property (nonatomic, readwrite) NSDate *threeMonthsBeforeElectionDay;
+
+@end
+
+__attribute__((objc_direct_members))
+@implementation TJScaleTipper {
+    NSInteger _closestElectionYear;
+}
+
++ (instancetype)shared
+{
+    static TJScaleTipper *shared;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        shared = [TJScaleTipper new];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationSignificantTimeChangeNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification * _Nonnull notification) {
+            [shared _tryUpdateDates];
+        }];
+        [shared _tryUpdateDates];
+    });
+    return shared;
+}
+
+static NSInteger _computeClosestElectionYear(void) {
+    NSDate *const date = [NSDate date];
+    const NSInteger year = [[NSCalendar currentCalendar] component:NSCalendarUnitYear fromDate:date];
+    
+    const NSInteger lastElectionYear = (year / 4) * 4;
+    
+    if (year - lastElectionYear < 2) {
+        return lastElectionYear;
+    }
+    return ceil(year / 4.0) * 4; // Next election year
+}
+
+static NSDate *_computeElectionDayInYear(const NSInteger year) {
+    NSDateComponents *components = [NSDateComponents new];
+    components.year = year;
+    components.month = 11;
+    components.weekday = 3;
+    components.weekdayOrdinal = 1;
+    return [[NSCalendar currentCalendar] dateFromComponents:components];
+}
+
+static NSDate *_floorDate(NSDate *const date)
+{
+    // Floor the input date to the very beginning of the specified day.
+    NSCalendar *const calendar = [NSCalendar currentCalendar];
+    NSDateComponents *const dateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitTimeZone fromDate:date];
+    return [calendar dateFromComponents:dateComponents];
+}
+
+static NSDate *_ceilDate(NSDate *const date)
+{
+    return _floorDate([NSDate dateWithTimeIntervalSinceNow:86400]);
+}
+
+- (void)_tryUpdateDates
+{
+    const NSInteger closestElectionYear = _computeClosestElectionYear();
+    
+    if (closestElectionYear != _closestElectionYear) {
+        _closestElectionYear = closestElectionYear;
+        
+        NSDate *const electionDay = _computeElectionDayInYear(closestElectionYear);
+        self.endOfElectionDay = _ceilDate(electionDay);
+        self.oneWeekBeforeElectionDay = _floorDate([electionDay dateByAddingTimeInterval:-604800]);
+        self.oneMonthBeforeElectionDay = _floorDate([electionDay dateByAddingTimeInterval:-2592000]);
+        self.threeMonthsBeforeElectionDay = _floorDate([electionDay dateByAddingTimeInterval:-7776000]);
+    }
+}
+
+- (BOOL)isGoodCandidateToEncourageVoting
 {
     // US-based.
     if (![[[NSLocale currentLocale] countryCode] isEqual:@"US"]) {
         return NO;
     }
     
-    // After deadline (Nov 5, 2024)
-    if ([[NSDate date] timeIntervalSince1970] > kTJEndOfElectionDayUnixTimestamp ) {
+    // After deadline
+    if ([[NSDate date] compare:self.endOfElectionDay] == NSOrderedDescending) { // todo: double check this
         return NO;
     }
     
@@ -53,6 +127,27 @@ __attribute__((objc_direct_members))
     }
     
     return YES;
+}
+
+- (TJScaleTipperLifecycleStage)lifecycleStage
+{
+    if (![self isGoodCandidateToEncourageVoting]) {
+        return TJScaleTipperLifecycleStageNone;
+    }
+    
+    NSDate *const now = [NSDate date];
+    
+    if ([self.threeMonthsBeforeElectionDay compare:now] == NSOrderedAscending) {
+        if ([now compare:self.oneMonthBeforeElectionDay] == NSOrderedAscending) {
+            return TJScaleTipperLifecycleStageRegisterToVote;
+        }
+        
+        if ([self.oneWeekBeforeElectionDay compare:now] == NSOrderedAscending) { // "< end of election day" is implied in isGoodCandidateToEncourageVoting check
+            return TJScaleTipperLifecycleStageVote;
+        }
+    }
+    
+    return TJScaleTipperLifecycleStageNone;
 }
 
 @end
