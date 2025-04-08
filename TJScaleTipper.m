@@ -129,4 +129,25 @@ static NSDate *_ceilDate(NSDate *const date)
     return YES;
 }
 
+- (TJScaleTipperLifecycleStage)lifecycleStage
+{
+    if (![self isGoodCandidateToEncourageVoting]) {
+        return TJScaleTipperLifecycleStageNone;
+    }
+    
+    NSDate *const now = [NSDate date];
+    
+    if ([self.threeMonthsBeforeElectionDay compare:now] == NSOrderedAscending) {
+        if ([now compare:self.oneMonthBeforeElectionDay] == NSOrderedAscending) {
+            return TJScaleTipperLifecycleStageRegisterToVote;
+        }
+        
+        if ([self.oneWeekBeforeElectionDay compare:now] == NSOrderedAscending) { // "< end of election day" is implied in isGoodCandidateToEncourageVoting check
+            return TJScaleTipperLifecycleStageVote;
+        }
+    }
+    
+    return TJScaleTipperLifecycleStageNone;
+}
+
 @end

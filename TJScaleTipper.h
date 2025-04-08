@@ -9,6 +9,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_CLOSED_ENUM(NSInteger, TJScaleTipperLifecycleStage) {
+    TJScaleTipperLifecycleStageNone,
+    TJScaleTipperLifecycleStageRegisterToVote,
+    TJScaleTipperLifecycleStageVote,
+};
+
 /// Recommended URL to direct people to encourage voting.
 extern NSString *const kTJVoterRegistrationURLString;
 
@@ -16,6 +22,7 @@ extern NSString *const kTJVoterRegistrationURLString;
 
 + (instancetype)shared;
 
+@property (nonatomic, readonly) TJScaleTipperLifecycleStage lifecycleStage;
 
 /// @c isGoodCandidateToEncourageVoting will always return @c NO after this time
 @property (nonatomic, readonly) NSDate *endOfElectionDay;
